@@ -6,6 +6,7 @@ from hrodebert_engine.variables.variables import running
 from hrodebert_engine.engine.functions import *
 import hrodebert_engine.variables.variables as var
 import hrodebert_engine.database.database as data
+import hrodebert_engine.variables.variables as var
 
 # runs the hrodebert_engine in a loop.
 while running is True:
@@ -13,7 +14,7 @@ while running is True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    if not hrodebert_engine.variables.variables.main_menu:
+    if not var.main_menu:
         # calls the key handler
         hrodebert_engine.engine.functions.key_handler()
         if not game_over_rendered:
