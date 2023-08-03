@@ -44,6 +44,8 @@ class Button:
                         var.enemy.clear()
                         var.wall_list.clear()
                         var.player_lives = 1
+                        var.render_level_subpart = 1
+                        var.sub_part_rendered = 1
                         var.jump_cd = 0
                         var.jumping = False
                         hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"),True)
@@ -198,10 +200,10 @@ class booster:
             booster_list.pop(self.booster_id - 1)
             player_gets_power_up.play()
             if self.type == "heart":
-                player_lives += 1
+                var.player_lives += 1
             elif self.type == "jet_pack":
-                jet_pack_starter_time = Now_time
-                jet_pack_using = True
+                var.jet_pack_starter_time = var.Now_time
+                var.jet_pack_using = True
 
 
 class enemy_class:
@@ -275,10 +277,10 @@ class enemy_class:
             elif self.type == "helicopter":
                 if self.minions:
                     if var.Now_time is not None:
-                        if self.minion_cd + 120 <= Now_time:
+                        if self.minion_cd + 120 <= var.Now_time:
                             enemy_class(self.x_position + self.size_width, self.yaxis + self.size_height / 2, "bullet1",
                                         randomise_x_When_off_screen=False, speed=5, can_summon_minions=False)
-                            self.minion_cd = Now_time
+                            self.minion_cd = var.Now_time
                             mixer.music.load("assets/sfx/bullet.mp3")
                             mixer.music.set_volume(0.3)
                             mixer.music.play()

@@ -52,8 +52,6 @@ def render_level(level_number,Rerender = False):
             chance_of_spawning_power_up = 150
             number_to_spawn_power_up = 150
             sub_part_rendered = 1
-            wall(x_position=120, y_position=120, width=100, height=100, texture=wall_texture,
-                 delete_enemy_on_contact=False)
             enemy_class(x_position=70, yaxis=-50, direction="plane1", randomise_x_When_off_screen=True, speed=5,
                         can_summon_minions=True)
             music.stop()
@@ -62,64 +60,66 @@ def render_level(level_number,Rerender = False):
         # cheeks is the player is on stage 2 of the level
         disabled = False
         if not disabled:
-            if render_level_subpart == 2:
+            if var.render_level_subpart == 2:
                 # cheeks if the 2 stage is rendered
-                if sub_part_rendered == 1:
+                if var.sub_part_rendered == 1:
                     # the second stage is not rendered, so it will be rendered and the stage variable will be set
                     # to 2
                     clear_sounds()
-                    actual_level = 1
-                    sub_part_rendered = 2
-                    falling_speed = 0
-                    enemy.clear()
+                    for walls in var.wall_list:
+                        var.wall_list.remove(walls)
+                    var.actual_level = 1
+                    var.sub_part_rendered = 2
+                    var.falling_speed = 0
+                    var.enemy.clear()
                     bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
                     rendering = "level_1"
-                    chance_of_spawning_power_up = 150
-                    number_to_spawn_power_up = 150
+                    var.chance_of_spawning_power_up = 150
+                    var.number_to_spawn_power_up = 150
                     enemy_class(x_position=width + 70, yaxis=-50, direction="plane2", randomise_x_When_off_screen=True,
                                 speed=5, can_summon_minions=True)
                     enemy_class(x_position=70, yaxis=-50, direction="plane1", randomise_x_When_off_screen=True, speed=5,
                                 can_summon_minions=True)
-                    invulnerable = True
-                    jumping = False
-            if 3 == render_level_subpart and sub_part_rendered == 2:
+                    var.invulnerable = True
+                    var.jumping = False
+            if 3 == var.render_level_subpart and var.sub_part_rendered == 2:
                 # the second stage is not rendered so it will be rendered and the stage variable will be set to 2
-                actual_level = 1
+                var.actual_level = 1
                 clear_sounds()
-                falling_speed = 0
+                var.falling_speed = 0
                 enemy.clear()
-                sub_part_rendered = 3
+                var.sub_part_rendered = 3
                 bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
                 rendering = "level_1"
-                chance_of_spawning_power_up = 150
-                number_to_spawn_power_up = 150
-                player_lives += 1
+                var.chance_of_spawning_power_up = 150
+                var.number_to_spawn_power_up = 150
+                var.player_lives += 1
                 enemy_class(x_position=70, yaxis=-50, direction="helicopter", randomise_x_When_off_screen=True,
                             speed=5,
                             can_summon_minions=True)
-                invulnerable = True
+                var.invulnerable = True
                 print("stage 2")
-                sub_part_rendered = 3
-                jumping = False
-            if 4 == render_level_subpart and sub_part_rendered == 3:
+                var.sub_part_rendered = 3
+                var.jumping = False
+            if 4 == var.render_level_subpart and var.sub_part_rendered == 3:
                 # the third stage is not rendered so it will be rendered and the stage variable will be set to 3
-                actual_level = 1
-                player_lives += 1
+                var.actual_level = 1
+                var.player_lives += 1
                 clear_sounds()
-                falling_speed = 0
+                var.falling_speed = 0
                 enemy.clear()
-                sub_part_rendered = 4
+                var.sub_part_rendered = 4
                 bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
                 rendering = "level_1"
-                chance_of_spawning_power_up = 150
-                number_to_spawn_power_up = 150
+                var.chance_of_spawning_power_up = 150
+                var.number_to_spawn_power_up = 150
                 enemy_class(x_position=70, yaxis=-50, direction="scope", randomise_x_When_off_screen=True,
                             speed=5,
                             can_summon_minions=True)
-                invulnerable = True
+                var.invulnerable = True
                 print("stage 3")
-                sub_part_rendered = 4
-                jumping = False
+                var.sub_part_rendered = 4
+                var.jumping = False
         screen.blit(bg, (0, 0))
 
 def render_main_menu():
@@ -151,22 +151,26 @@ def physics():
             else:
                 # if the player is not off-screen make the player fall
                 can_move = False
-                for walls in wall_list:
-                    player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos + int(var.falling_speed) + 1,
-                                                            var.player_rect_size,
-                                                            var.player_rect_size)
-                    result = walls.can_player_move(player_rect)
-                    walls.physics()
-                    if result:
-                        can_move = False
+                if len(var.wall_list) > 0:
+                    for walls in wall_list:
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos + int(var.falling_speed) + 1,
+                                                                var.player_rect_size,
+                                                                var.player_rect_size)
+                        result = walls.can_player_move(player_rect)
+                        walls.physics()
+                        if result:
+                            can_move = False
+                        else:
+                            if not can_move:
+                                can_move = True
+                    if can_move:
+                        var.falling_speed += 0.5
+                        var.player_y_pos += int(var.falling_speed)
                     else:
-                        if not can_move:
-                            can_move = True
-                if can_move:
+                        var.falling_speed = 0
+                else:
                     var.falling_speed += 0.5
                     var.player_y_pos += int(var.falling_speed)
-                else:
-                    var.falling_speed = 0
 
             # meter counter cant be smaller then 0
             if var.meter_counter >= 0 and var.meter_counter != 0:
@@ -392,75 +396,82 @@ def key_handler():
         can_move = False
         var.direction = "right"
         returns = []
-        for walls in wall_list:
-            player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos + 2, var.player_rect_size,
-                                                    var.player_rect_size)
-            result = walls.can_player_move(player_rect)
-            if result:
-                can_move = False
-                player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed - 20, var.player_y_pos - 2,
-                                                        var.player_rect_size,
+        if len(var.wall_list) > 0:
+            for walls in wall_list:
+                player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos + 2, var.player_rect_size,
                                                         var.player_rect_size)
                 result = walls.can_player_move(player_rect)
-                if not result:
-                    can_move = True
-            else:
-                if not can_move:
-                    can_move = True
-        if can_move:
-            if var.player_x_pos - 1 >= 0:
-                var.player_x_pos -= var.player_speed
-                print("moving")
+                if result:
+                    can_move = False
+                    player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed - 20, var.player_y_pos - 2,
+                                                            var.player_rect_size,
+                                                            var.player_rect_size)
+                    result = walls.can_player_move(player_rect)
+                    if not result:
+                        can_move = True
+                else:
+                    if not can_move:
+                        can_move = True
+            if can_move:
+                if var.player_x_pos - 1 >= 0:
+                    var.player_x_pos -= var.player_speed
+                    print("moving")
+        else:
+            var.player_x_pos -= var.player_speed
     if keys[pygame.K_d]:
         can_move = False
         var.direction = "left"
-        for walls in wall_list:
-            player_rect = player_rect = pygame.Rect(var.player_x_pos + var.player_speed - 20, var.player_y_pos + 2,
-                                                    var.player_rect_size,
-                                                    var.player_rect_size)
-            result = walls.can_player_move(player_rect)
-            if result:
-                can_move = False
-                player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos - 2, var.player_rect_size,
+        if len(var.wall_list) > 0:
+            for walls in wall_list:
+                player_rect = player_rect = pygame.Rect(var.player_x_pos + var.player_speed - 20, var.player_y_pos + 2,
+                                                        var.player_rect_size,
                                                         var.player_rect_size)
                 result = walls.can_player_move(player_rect)
-                if not result:
-                    can_move = True
-            else:
-                if not can_move:
-                    can_move = True
-        if var.player_x_pos + var.player_rect_size < width:
-            if can_move:
-                var.player_x_pos += var.player_speed
+                if result:
+                    can_move = False
+                    player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos - 2, var.player_rect_size,
+                                                            var.player_rect_size)
+                    result = walls.can_player_move(player_rect)
+                    if not result:
+                        can_move = True
+                else:
+                    if not can_move:
+                        can_move = True
+            if var.player_x_pos + var.player_rect_size < width:
+                if can_move:
+                    var.player_x_pos += var.player_speed
+        else:
+            var.player_x_pos += var.player_speed
+
 
     # makes the go height / go down key usable only if the player has a jetpack
     if jet_pack_using:
         if keys[pygame.K_w]:
             can_move = False
             for walls in wall_list:
-                player_rect = player_rect = pygame.Rect(player_x_pos, player_y_pos - player_speed, player_rect_size,
-                                                        player_rect_size)
+                player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos - var.player_speed, var.player_rect_size,
+                                                        var.player_rect_size)
                 result = walls.can_player_move(player_rect)
                 if result:
                     can_move = False
                 else:
                     if not can_move:
                         can_move = True
-            if player_y_pos - player_rect_size > 0:
+            if var.player_y_pos - player_rect_size > 0:
                 if can_move:
-                    player_y_pos -= player_speed
+                    var.player_y_pos -= player_speed
 
         if keys[pygame.K_s]:
             can_move = False
             for walls in wall_list:
-                player_rect = player_rect = pygame.Rect(player_x_pos, player_y_pos + player_speed, player_rect_size,
-                                                        player_rect_size)
+                player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos + var.player_speed, var.player_rect_size,
+                                                        var.player_rect_size)
                 result = walls.can_player_move(player_rect)
                 if result:
                     can_move = False
                 else:
                     if not can_move:
                         can_move = True
-            if player_y_pos + player_rect_size < height:
+            if var.player_y_pos + var.player_rect_size < height:
                 if can_move:
-                    player_y_pos += player_speed
+                    var.player_y_pos += var.player_speed
