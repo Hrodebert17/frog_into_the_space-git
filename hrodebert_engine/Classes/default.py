@@ -6,6 +6,7 @@ from hrodebert_engine.variables.variables import heart,jet_pack
 from hrodebert_engine.engine.functions import *
 from hrodebert_engine.variables.variables import *
 import hrodebert_engine.engine.functions
+import hrodebert_engine.database.database as data
 
 class Button:
     def __init__(self, x, y, image, name):
@@ -36,10 +37,15 @@ class Button:
                         hrodebert_engine.variables.variables.game_over = False
                         hrodebert_engine.variables.variables.game_over_rendered = False
                         hrodebert_engine.variables.variables.invulnerable = True
+                        hrodebert_engine.variables.variables.Now_time = 0
+                        hrodebert_engine.variables.variables.rendering = None
                         hrodebert_engine.variables.variables.starter_time = Now_time
                         hrodebert_engine.variables.variables.enemy.clear()
+                        hrodebert_engine.variables.variables.wall_list.clear()
                         hrodebert_engine.variables.variables.player_lives = 1
-                        hrodebert_engine.engine.functions.render_level(hrodebert_engine.variables.variables.actual_level)
+                        hrodebert_engine.variables.variables.jump_cd = 0
+                        hrodebert_engine.variables.variables.jumping = False
+                        hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"),True)
 
 
 
@@ -252,22 +258,22 @@ class enemy_class:
             if self.type == "plane1":
                 self.x_position += self.enemy_speed
                 if self.minions:
-                    if Now_time is not None:
-                        if self.minion_cd + 60 <= Now_time:
+                    if hrodebert_engine.variables.variables.Now_time is not None:
+                        if self.minion_cd + 60 <= hrodebert_engine.variables.variables.Now_time:
                             enemy_class(self.x_position, self.yaxis, "bomb", randomise_x_When_off_screen=False, speed=5,
                                         can_summon_minions=False)
-                            self.minion_cd = Now_time
+                            self.minion_cd = hrodebert_engine.variables.variables.Now_time
             elif self.type == "plane2":
                 if self.minions:
-                    if Now_time is not None:
-                        if self.minion_cd + 60 <= Now_time:
+                    if hrodebert_engine.variables.variables.Now_time is not None:
+                        if self.minion_cd + 60 <= hrodebert_engine.variables.variables.Now_time:
                             enemy_class(self.x_position, self.yaxis, "bomb", randomise_x_When_off_screen=False, speed=5,
                                         can_summon_minions=False)
-                            self.minion_cd = Now_time
+                            self.minion_cd = hrodebert_engine.variables.variables.Now_time
                 self.x_position -= self.enemy_speed
             elif self.type == "helicopter":
                 if self.minions:
-                    if Now_time is not None:
+                    if hrodebert_engine.variables.variables.Now_time is not None:
                         if self.minion_cd + 120 <= Now_time:
                             enemy_class(self.x_position + self.size_width, self.yaxis + self.size_height / 2, "bullet1",
                                         randomise_x_When_off_screen=False, speed=5, can_summon_minions=False)

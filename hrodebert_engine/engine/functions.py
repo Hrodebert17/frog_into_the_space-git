@@ -5,6 +5,7 @@ import random
 import hrodebert_engine.variables.variables
 from hrodebert_engine.Classes.default import *
 from hrodebert_engine.variables.variables import *
+import hrodebert_engine.database.database as data
 
 # functions
 
@@ -23,14 +24,15 @@ def draw_text(text, font_for_the_thext, color, x, y):
     screen.blit(text_surface, text_rect)
     return text_surface, text_rect.size
 
-
+rendering = None
 # screen render
-def render_level(level_number):
-    global screen, width, height, bg, rendering, actual_level, enemy, width, height, player_x_pos, player_y_pos, black
-    global player_lives, falling_speed, render_level_subpart, sub_part_rendered, invulnerable
-    global chance_of_spawning_power_up, number_to_spawn_power_up, booster_list, player_speed, jumping, music, wall_list
+def render_level(level_number,Rerender = False):
+    global rendering,render_level_subpart,bg
     # cheeks which level the player is into
+    if Rerender:
+        rendering = None
     if level_number == 1:
+        print("lvl num 1")
         # cheeks if the level is already rendered
         if rendering is None:
             # if the rendering is none then it renders the first part of the level<
@@ -44,12 +46,11 @@ def render_level(level_number):
             bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
             rendering = "level_1"
             render_level_subpart = 1
-            player_y_pos = int((height / 2) - player_rect_size / 2)
-            player_x_pos = int((width / 2) - player_rect_size / 2)
+            hrodebert_engine.variables.variables.player_y_pos = int((height / 2) - player_rect_size / 2)
+            hrodebert_engine.variables.variables.player_x_pos = int((width / 2) - player_rect_size / 2)
             chance_of_spawning_power_up = 150
             number_to_spawn_power_up = 150
             sub_part_rendered = 1
-            jumping = False
             wall(x_position=120, y_position=120, width=100, height=100, texture=wall_texture,
                  delete_enemy_on_contact=False)
             enemy_class(x_position=70, yaxis=-50, direction="plane1", randomise_x_When_off_screen=True, speed=5,
@@ -272,9 +273,6 @@ player_sprite()
 # updates the skin
 
 def screen_updater():
-    global Now_time, Max_fps, player_x_pos, enemy, game_over, game_over_rendered, invulnerable, rendering, retry_button
-    global starter_time, player_lives, booster_list, render_level_subpart, chance_of_spawning_power_up
-    global number_to_spawn_power_up, started_guess, player_y_pos, jet_pack_using, wall_list, player_list
     if not hrodebert_engine.variables.variables.game_over:
         # if the player is higher than 10000 meters
         if hrodebert_engine.variables.variables.meter_counter > 10000:
@@ -306,7 +304,7 @@ def screen_updater():
         screen.fill("white")
 
         # renders the requested level
-        hrodebert_engine.engine.functions.render_level(1)
+        hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"))
         if jet_pack_using:
             screen.blit(jet_pack, (player_x_pos - player_rect_size / 4, player_y_pos - 10))
         # pygame.draw.rect(screen, player_rect_color,
@@ -339,8 +337,8 @@ def screen_updater():
                 hrodebert_engine.variables.variables.invulnerable = False
 
         # top border
-        if player_y_pos < 0:
-            player_y_pos = 0
+        if hrodebert_engine.variables.variables.player_y_pos < 0:
+            hrodebert_engine.variables.variables.player_y_pos = 0
 
         # falling system
         if hrodebert_engine.variables.variables.meter_counter == 0 or hrodebert_engine.variables.variables.meter_counter <= 0:
@@ -355,9 +353,10 @@ def screen_updater():
         if not game_over_rendered:
             music.stop()
             screen.fill("black")
-            text, text_size = draw_text(str(int(meter_counter)), font, black, (width / 2), (height / 2) - 230)
+            text, text_size = draw_text(str(int(hrodebert_engine.variables.variables.meter_counter)), font, black, (width / 2), (height / 2) - 230)
             text_width = text_size[0]
-            draw_text(str(int(meter_counter)), font, white, (width / 2) - (text_width / 2), (height / 2) - 230)
+            print(f"text widt ={text_width}")
+            draw_text(str(int(hrodebert_engine.variables.variables.meter_counter)), font, white, int(((width / 2) - text_width / 2)), (height / 2) - 230)
             text, text_size = draw_text(str("Game Over!"), font, black, (width / 2), (height / 2))
             text_width = text_size[0]
             draw_text(str("Game Over!"), font, red, (width / 2) - (text_width / 2), (height / 2))
@@ -372,8 +371,6 @@ def screen_updater():
 
 # key handler
 def key_handler():
-    global player_x_pos, player_y_pos, jump_cd, Now_time, falling_speed, player_speed, game_over, jumping, jump_force
-    global friction, jump_force, jet_pack_using,direction
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE]:
         # we cheek if exists the cool down, if it doesn't then we jump if it exists we cheek if it's smaller than the

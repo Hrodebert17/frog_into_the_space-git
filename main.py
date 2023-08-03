@@ -5,6 +5,7 @@ import hrodebert_engine.variables.variables
 from hrodebert_engine.variables.variables import running
 from hrodebert_engine.engine.functions import *
 import hrodebert_engine.variables.variables as var
+import hrodebert_engine.database.database as data
 
 # runs the hrodebert_engine in a loop.
 while running is True:
@@ -23,4 +24,5 @@ while running is True:
         hrodebert_engine.engine.functions.render_main_menu()
 # closes pygame after the loop.
 pygame.quit()
+data.close_database()
 sys.exit()
