@@ -2,12 +2,13 @@ import pygame
 import random
 
 import hrodebert_engine
-from hrodebert_engine.variables.variables import heart,jet_pack
+from hrodebert_engine.variables.variables import heart, jet_pack
 from hrodebert_engine.engine.functions import *
 from hrodebert_engine.variables.variables import *
 import hrodebert_engine.engine.functions
 import hrodebert_engine.database.database as data
 import hrodebert_engine.variables.variables as var
+
 
 class Button:
     def __init__(self, x, y, image, name):
@@ -48,8 +49,10 @@ class Button:
                         var.sub_part_rendered = 1
                         var.jump_cd = 0
                         var.jumping = False
-                        hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"),True)
-
+                        var.events.clear()
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=10000)
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=20000)
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=30000)
 
 
 class player_sprite:
@@ -62,31 +65,31 @@ class player_sprite:
         self.loaded_idle_sprite = 0
 
     def walk(self):
-        if not jumping:
-            print(self.xpos,var.player_x_pos)
+        if var.direction == "right":
+            self.direction = True
+        else:
+            self.direction = False
+        if not var.jumping:
+            print(self.xpos, var.player_x_pos)
             if self.xpos != var.player_x_pos:
-                if var.direction == "right":
-                    self.direction = True
-                else:
-                    self.direction = False
                 self.loaded_sprite_run += 0.5
                 if int(self.loaded_sprite_run) > len(var.running_sprites):
                     self.loaded_sprite_run = 0
-                screen.blit(pygame.transform.flip(running_sprites[int(self.loaded_sprite_run) - 1], self.direction,False), (var.player_x_pos, var.player_y_pos))
+                screen.blit(
+                    pygame.transform.flip(running_sprites[int(self.loaded_sprite_run) - 1], self.direction, False),
+                    (var.player_x_pos, var.player_y_pos))
                 self.xpos = var.player_x_pos
             else:
                 self.loaded_sprite_run = 0
                 self.loaded_idle_sprite += 0.5
                 if int(self.loaded_idle_sprite) > len(idle_spite_list):
                     self.loaded_idle_sprite = 0
-                screen.blit(pygame.transform.flip(idle_spite_list[int(self.loaded_idle_sprite) - 1], self.direction, False),
-                            (var.player_x_pos, var.player_y_pos))
+                screen.blit(
+                    pygame.transform.flip(idle_spite_list[int(self.loaded_idle_sprite) - 1], self.direction, False),
+                    (var.player_x_pos, var.player_y_pos))
         else:
             screen.blit(pygame.transform.flip(jumping_sprite, self.direction, False),
                         (var.player_x_pos, var.player_y_pos))
-
-
-
 
 
 class wall:
@@ -122,20 +125,24 @@ class wall:
                 position2 = var.player_y_pos + pos_modificator
                 position3 = var.player_x_pos - pos_modificator
                 position4 = var.player_x_pos + pos_modificator
-                if not pygame.Rect.colliderect(self.rectangle, pygame.Rect(var.player_x_pos, position1, player_rect_size,
-                                                                           player_rect_size)):
+                if not pygame.Rect.colliderect(self.rectangle,
+                                               pygame.Rect(var.player_x_pos, position1, player_rect_size,
+                                                           player_rect_size)):
                     var.player_y_pos -= pos_modificator
                     break
-                elif not pygame.Rect.colliderect(self.rectangle, pygame.Rect(var.player_x_pos, position2, player_rect_size,
-                                                                             player_rect_size)):
+                elif not pygame.Rect.colliderect(self.rectangle,
+                                                 pygame.Rect(var.player_x_pos, position2, player_rect_size,
+                                                             player_rect_size)):
                     var.player_y_pos += pos_modificator
                     break
-                if not pygame.Rect.colliderect(self.rectangle, pygame.Rect(position3, var.player_y_pos, player_rect_size,
-                                                                           player_rect_size)):
+                if not pygame.Rect.colliderect(self.rectangle,
+                                               pygame.Rect(position3, var.player_y_pos, player_rect_size,
+                                                           player_rect_size)):
                     var.player_x_pos -= pos_modificator
                     break
-                elif not pygame.Rect.colliderect(self.rectangle, pygame.Rect(position4, var.player_y_pos, player_rect_size,
-                                                                             player_rect_size)):
+                elif not pygame.Rect.colliderect(self.rectangle,
+                                                 pygame.Rect(position4, var.player_y_pos, player_rect_size,
+                                                             player_rect_size)):
                     var.player_x_pos += pos_modificator
                     break
                 pos_modificator += 1
@@ -400,4 +407,30 @@ class enemy_class:
                 self.x_position = int(random.randint(20, width - 20))
 
 
+class event:
+    def __init__(self, type: str, one_time_only: bool, type_args):
+        self.event_type = type
+        self.one_time_only = one_time_only
+        self.type_args = type_args
+        self.valid = True
+        var.events.append(self)
+        if self.event_type != "C":
+            print(f"no type of event whit the type of {self.event_type}. here a list off all the events: \n--upon_reaching_meter ")
+            self.valid = False
+        if self.valid:
+            var.events.append(self)
+            print(events)
 
+    def cheek_for_event(self):
+        # first we cheek which type of event the self event is so we can use the right action
+        if self.event_type == "upon_reaching_meter":
+            self.upon_reaching_meter()
+
+    def upon_reaching_meter(self):
+        if var.meter_counter >= self.type_args:
+            if var.reached_meter < self.type_args:
+                var.reached_meter = self.type_args
+                var.rendering = None
+                print("HUH")
+                if self.one_time_only:
+                    self.valid = False
