@@ -2,11 +2,13 @@ import pygame
 import random
 
 import hrodebert_engine
-from hrodebert_engine.variables.variables import heart,jet_pack
+from hrodebert_engine.variables.variables import heart, jet_pack
 from hrodebert_engine.engine.functions import *
 from hrodebert_engine.variables.variables import *
 import hrodebert_engine.engine.functions
 import hrodebert_engine.database.database as data
+import hrodebert_engine.variables.variables as var
+
 
 class Button:
     def __init__(self, x, y, image, name):
@@ -29,61 +31,65 @@ class Button:
                 if self.clicked_button:
                     print("clicked")
                     if self.name == "play":
-                        hrodebert_engine.variables.variables.main_menu = False
+                        var.main_menu = False
 
                     elif self.name == "retry":
-                        hrodebert_engine.variables.variables.meter_counter = 0
-                        hrodebert_engine.variables.variables.rendering = None
-                        hrodebert_engine.variables.variables.game_over = False
-                        hrodebert_engine.variables.variables.game_over_rendered = False
-                        hrodebert_engine.variables.variables.invulnerable = True
-                        hrodebert_engine.variables.variables.Now_time = 0
-                        hrodebert_engine.variables.variables.rendering = None
-                        hrodebert_engine.variables.variables.starter_time = Now_time
-                        hrodebert_engine.variables.variables.enemy.clear()
-                        hrodebert_engine.variables.variables.wall_list.clear()
-                        hrodebert_engine.variables.variables.player_lives = 1
-                        hrodebert_engine.variables.variables.jump_cd = 0
-                        hrodebert_engine.variables.variables.jumping = False
-                        hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"),True)
-
+                        var.meter_counter = 0
+                        var.rendering = None
+                        var.game_over = False
+                        var.game_over_rendered = False
+                        var.invulnerable = True
+                        var.Now_time = 0
+                        var.rendering = None
+                        var.starter_time = Now_time
+                        var.enemy.clear()
+                        var.wall_list.clear()
+                        var.player_lives = 1
+                        var.render_level_subpart = 1
+                        var.sub_part_rendered = 1
+                        var.jump_cd = 0
+                        var.jumping = False
+                        var.events.clear()
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=10000)
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=20000)
+                        event(type="upon_reaching_meter", one_time_only=True, type_args=30000)
 
 
 class player_sprite:
     def __init__(self):
         self.loaded_sprite_run = 0
         self.current_sprite = 0
-        hrodebert_engine.variables.variables.player_list.append(self)
+        var.player_list.append(self)
         self.direction = False
-        self.xpos = hrodebert_engine.variables.variables.player_x_pos
+        self.xpos = var.player_x_pos
         self.loaded_idle_sprite = 0
 
     def walk(self):
-        if not jumping:
-            print(self.xpos,hrodebert_engine.variables.variables.player_x_pos)
-            if self.xpos != hrodebert_engine.variables.variables.player_x_pos:
-                if hrodebert_engine.variables.variables.direction == "right":
-                    self.direction = True
-                else:
-                    self.direction = False
+        if var.direction == "right":
+            self.direction = True
+        else:
+            self.direction = False
+        if not var.jumping:
+            print(self.xpos, var.player_x_pos)
+            if self.xpos != var.player_x_pos:
                 self.loaded_sprite_run += 0.5
-                if int(self.loaded_sprite_run) > len(hrodebert_engine.variables.variables.running_sprites):
+                if int(self.loaded_sprite_run) > len(var.running_sprites):
                     self.loaded_sprite_run = 0
-                screen.blit(pygame.transform.flip(running_sprites[int(self.loaded_sprite_run) - 1], self.direction,False), (hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos))
-                self.xpos = hrodebert_engine.variables.variables.player_x_pos
+                screen.blit(
+                    pygame.transform.flip(running_sprites[int(self.loaded_sprite_run) - 1], self.direction, False),
+                    (var.player_x_pos, var.player_y_pos))
+                self.xpos = var.player_x_pos
             else:
                 self.loaded_sprite_run = 0
                 self.loaded_idle_sprite += 0.5
                 if int(self.loaded_idle_sprite) > len(idle_spite_list):
                     self.loaded_idle_sprite = 0
-                screen.blit(pygame.transform.flip(idle_spite_list[int(self.loaded_idle_sprite) - 1], self.direction, False),
-                            (hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos))
+                screen.blit(
+                    pygame.transform.flip(idle_spite_list[int(self.loaded_idle_sprite) - 1], self.direction, False),
+                    (var.player_x_pos, var.player_y_pos))
         else:
             screen.blit(pygame.transform.flip(jumping_sprite, self.direction, False),
-                        (hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos))
-
-
-
+                        (var.player_x_pos, var.player_y_pos))
 
 
 class wall:
@@ -114,26 +120,30 @@ class wall:
             pos_modificator = 0
             position = 0
             while True:
-                pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos, player_rect_size, player_rect_size)
-                position1 = hrodebert_engine.variables.variables.player_y_pos - pos_modificator
-                position2 = hrodebert_engine.variables.variables.player_y_pos + pos_modificator
-                position3 = hrodebert_engine.variables.variables.player_x_pos - pos_modificator
-                position4 = hrodebert_engine.variables.variables.player_x_pos + pos_modificator
-                if not pygame.Rect.colliderect(self.rectangle, pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, position1, player_rect_size,
-                                                                           player_rect_size)):
-                    hrodebert_engine.variables.variables.player_y_pos -= pos_modificator
+                pygame.Rect(var.player_x_pos, var.player_y_pos, player_rect_size, player_rect_size)
+                position1 = var.player_y_pos - pos_modificator
+                position2 = var.player_y_pos + pos_modificator
+                position3 = var.player_x_pos - pos_modificator
+                position4 = var.player_x_pos + pos_modificator
+                if not pygame.Rect.colliderect(self.rectangle,
+                                               pygame.Rect(var.player_x_pos, position1, player_rect_size,
+                                                           player_rect_size)):
+                    var.player_y_pos -= pos_modificator
                     break
-                elif not pygame.Rect.colliderect(self.rectangle, pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, position2, player_rect_size,
-                                                                             player_rect_size)):
-                    hrodebert_engine.variables.variables.player_y_pos += pos_modificator
+                elif not pygame.Rect.colliderect(self.rectangle,
+                                                 pygame.Rect(var.player_x_pos, position2, player_rect_size,
+                                                             player_rect_size)):
+                    var.player_y_pos += pos_modificator
                     break
-                if not pygame.Rect.colliderect(self.rectangle, pygame.Rect(position3, hrodebert_engine.variables.variables.player_y_pos, player_rect_size,
-                                                                           player_rect_size)):
-                    hrodebert_engine.variables.variables.player_x_pos -= pos_modificator
+                if not pygame.Rect.colliderect(self.rectangle,
+                                               pygame.Rect(position3, var.player_y_pos, player_rect_size,
+                                                           player_rect_size)):
+                    var.player_x_pos -= pos_modificator
                     break
-                elif not pygame.Rect.colliderect(self.rectangle, pygame.Rect(position4, hrodebert_engine.variables.variables.player_y_pos, player_rect_size,
-                                                                             player_rect_size)):
-                    hrodebert_engine.variables.variables.player_x_pos += pos_modificator
+                elif not pygame.Rect.colliderect(self.rectangle,
+                                                 pygame.Rect(position4, var.player_y_pos, player_rect_size,
+                                                             player_rect_size)):
+                    var.player_x_pos += pos_modificator
                     break
                 pos_modificator += 1
             return True
@@ -188,7 +198,7 @@ class booster:
         global player_lives, jet_pack_starter_time, jet_pack_using
         # detect collisions by:
         # first we define the variable "player rect" which is the player rectangle
-        player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos, player_rect_size, player_rect_size)
+        player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos, player_rect_size, player_rect_size)
         # second we define the booster rectangle
         boosters = pygame.Rect(self.x_position, self.y_position, self.width, self.height)
         # third we cheek if the player rectangle is inside the booster rectangle
@@ -197,10 +207,10 @@ class booster:
             booster_list.pop(self.booster_id - 1)
             player_gets_power_up.play()
             if self.type == "heart":
-                player_lives += 1
+                var.player_lives += 1
             elif self.type == "jet_pack":
-                jet_pack_starter_time = Now_time
-                jet_pack_using = True
+                var.jet_pack_starter_time = var.Now_time
+                var.jet_pack_using = True
 
 
 class enemy_class:
@@ -258,26 +268,26 @@ class enemy_class:
             if self.type == "plane1":
                 self.x_position += self.enemy_speed
                 if self.minions:
-                    if hrodebert_engine.variables.variables.Now_time is not None:
-                        if self.minion_cd + 60 <= hrodebert_engine.variables.variables.Now_time:
+                    if var.Now_time is not None:
+                        if self.minion_cd + 60 <= var.Now_time:
                             enemy_class(self.x_position, self.yaxis, "bomb", randomise_x_When_off_screen=False, speed=5,
                                         can_summon_minions=False)
-                            self.minion_cd = hrodebert_engine.variables.variables.Now_time
+                            self.minion_cd = var.Now_time
             elif self.type == "plane2":
                 if self.minions:
-                    if hrodebert_engine.variables.variables.Now_time is not None:
-                        if self.minion_cd + 60 <= hrodebert_engine.variables.variables.Now_time:
+                    if var.Now_time is not None:
+                        if self.minion_cd + 60 <= var.Now_time:
                             enemy_class(self.x_position, self.yaxis, "bomb", randomise_x_When_off_screen=False, speed=5,
                                         can_summon_minions=False)
-                            self.minion_cd = hrodebert_engine.variables.variables.Now_time
+                            self.minion_cd = var.Now_time
                 self.x_position -= self.enemy_speed
             elif self.type == "helicopter":
                 if self.minions:
-                    if hrodebert_engine.variables.variables.Now_time is not None:
-                        if self.minion_cd + 120 <= Now_time:
+                    if var.Now_time is not None:
+                        if self.minion_cd + 120 <= var.Now_time:
                             enemy_class(self.x_position + self.size_width, self.yaxis + self.size_height / 2, "bullet1",
                                         randomise_x_When_off_screen=False, speed=5, can_summon_minions=False)
-                            self.minion_cd = Now_time
+                            self.minion_cd = var.Now_time
                             mixer.music.load("assets/sfx/bullet.mp3")
                             mixer.music.set_volume(0.3)
                             mixer.music.play()
@@ -309,15 +319,15 @@ class enemy_class:
                 self.x_position += bullet_speed
                 screen.blit(bullet, (self.x_position, self.yaxis))
             elif self.type == "helicopter":
-                if hrodebert_engine.variables.variables.player_y_pos < self.yaxis:
+                if var.player_y_pos < self.yaxis:
                     self.yaxis -= 3
-                elif hrodebert_engine.variables.variables.player_y_pos > self.yaxis:
+                elif var.player_y_pos > self.yaxis:
                     self.yaxis += 3
                 screen.blit(helicopter, (self.x_position, self.yaxis))
             elif self.type == "scope":
                 if self.locked_time >= 100:
-                    self.x_position = hrodebert_engine.variables.variables.player_x_pos
-                    self.yaxis = hrodebert_engine.variables.variables.player_y_pos
+                    self.x_position = var.player_x_pos
+                    self.yaxis = var.player_y_pos
                     if self.time_before_disappearing == 0:
                         self.time_before_disappearing = 1
                     else:
@@ -328,13 +338,13 @@ class enemy_class:
                                     speed=2,
                                     can_summon_minions=True)
                 else:
-                    if hrodebert_engine.variables.variables.player_x_pos > self.x_position:
+                    if var.player_x_pos > self.x_position:
                         self.x_position += self.enemy_speed
-                    elif hrodebert_engine.variables.variables.player_x_pos < self.x_position:
+                    elif var.player_x_pos < self.x_position:
                         self.x_position -= self.enemy_speed
-                    if hrodebert_engine.variables.variables.player_y_pos < self.yaxis:
+                    if var.player_y_pos < self.yaxis:
                         self.yaxis -= self.enemy_speed
-                    elif hrodebert_engine.variables.variables.player_y_pos > self.yaxis:
+                    elif var.player_y_pos > self.yaxis:
                         self.yaxis += self.enemy_speed
 
                 if self.locking:
@@ -342,33 +352,33 @@ class enemy_class:
                 else:
                     screen.blit(scope_red, (self.x_position, self.yaxis))
             elif self.type == "Missile":
-                print(hrodebert_engine.variables.variables.player_y_pos, self.yaxis)
-                if hrodebert_engine.variables.variables.player_y_pos <= self.yaxis:
+                print(var.player_y_pos, self.yaxis)
+                if var.player_y_pos <= self.yaxis:
                     self.angle = 0
-                    print("self.yaxis < hrodebert_engine.variables.variables.player_y_pos")
+                    print("self.yaxis < var.player_y_pos")
                 else:
                     self.angle = -180
-                if hrodebert_engine.variables.variables.player_x_pos >= self.x_position:
+                if var.player_x_pos >= self.x_position:
                     if self.angle == 0:
                         self.angle = -40
                     if self.angle == -180:
                         self.angle = -140
-                elif hrodebert_engine.variables.variables.player_x_pos <= self.x_position:
+                elif var.player_x_pos <= self.x_position:
                     if self.angle == -180:
                         self.angle = 140
                     if self.angle == 0:
                         self.angle = 40
-                if self.x_position - 100 <= hrodebert_engine.variables.variables.player_x_pos <= self.x_position + 100 and self.yaxis > hrodebert_engine.variables.variables.player_y_pos:
+                if self.x_position - 100 <= var.player_x_pos <= self.x_position + 100 and self.yaxis > var.player_y_pos:
                     self.angle = 0
-                if self.x_position - 100 <= hrodebert_engine.variables.variables.player_x_pos <= self.x_position + 100 and self.yaxis < hrodebert_engine.variables.variables.player_y_pos:
+                if self.x_position - 100 <= var.player_x_pos <= self.x_position + 100 and self.yaxis < var.player_y_pos:
                     self.angle = -180
-                if hrodebert_engine.variables.variables.player_y_pos > self.yaxis:
+                if var.player_y_pos > self.yaxis:
                     self.yaxis += self.enemy_speed
-                if hrodebert_engine.variables.variables.player_y_pos < self.yaxis:
+                if var.player_y_pos < self.yaxis:
                     self.yaxis -= self.enemy_speed
-                if hrodebert_engine.variables.variables.player_x_pos > self.x_position:
+                if var.player_x_pos > self.x_position:
                     self.x_position += self.enemy_speed
-                if hrodebert_engine.variables.variables.player_x_pos < self.x_position:
+                if var.player_x_pos < self.x_position:
                     self.x_position -= self.enemy_speed
                 if self.starting_time <= Now_time - 700:
                     enemy_class(x_position=20, yaxis=20, direction="scope", randomise_x_When_off_screen=True,
@@ -397,4 +407,30 @@ class enemy_class:
                 self.x_position = int(random.randint(20, width - 20))
 
 
+class event:
+    def __init__(self, type: str, one_time_only: bool, type_args):
+        self.event_type = type
+        self.one_time_only = one_time_only
+        self.type_args = type_args
+        self.valid = True
+        var.events.append(self)
+        if self.event_type != "C":
+            print(f"no type of event whit the type of {self.event_type}. here a list off all the events: \n--upon_reaching_meter ")
+            self.valid = False
+        if self.valid:
+            var.events.append(self)
+            print(events)
 
+    def cheek_for_event(self):
+        # first we cheek which type of event the self event is so we can use the right action
+        if self.event_type == "upon_reaching_meter":
+            self.upon_reaching_meter()
+
+    def upon_reaching_meter(self):
+        if var.meter_counter >= self.type_args:
+            if var.reached_meter < self.type_args:
+                var.reached_meter = self.type_args
+                var.rendering = None
+                print("HUH")
+                if self.one_time_only:
+                    self.valid = False

@@ -6,6 +6,7 @@ import hrodebert_engine.variables.variables
 from hrodebert_engine.Classes.default import *
 from hrodebert_engine.variables.variables import *
 import hrodebert_engine.database.database as data
+import hrodebert_engine.variables.variables as var
 
 # functions
 
@@ -26,100 +27,6 @@ def draw_text(text, font_for_the_thext, color, x, y):
 
 rendering = None
 # screen render
-def render_level(level_number,Rerender = False):
-    global rendering,render_level_subpart,bg
-    # cheeks which level the player is into
-    if Rerender:
-        rendering = None
-    if level_number == 1:
-        print("lvl num 1")
-        # cheeks if the level is already rendered
-        if rendering is None:
-            # if the rendering is none then it renders the first part of the level<
-            actual_level = 1
-            player_lives = 1
-            mixer.music.load("assets/sfx/bullet.mp3")
-            clear_sounds()
-            falling_speed = 0
-            enemy.clear()
-            booster_list.clear()
-            bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
-            rendering = "level_1"
-            render_level_subpart = 1
-            hrodebert_engine.variables.variables.player_y_pos = int((height / 2) - player_rect_size / 2)
-            hrodebert_engine.variables.variables.player_x_pos = int((width / 2) - player_rect_size / 2)
-            chance_of_spawning_power_up = 150
-            number_to_spawn_power_up = 150
-            sub_part_rendered = 1
-            wall(x_position=120, y_position=120, width=100, height=100, texture=wall_texture,
-                 delete_enemy_on_contact=False)
-            enemy_class(x_position=70, yaxis=-50, direction="plane1", randomise_x_When_off_screen=True, speed=5,
-                        can_summon_minions=True)
-            music.stop()
-            music.play(loops=-1)
-
-        # cheeks is the player is on stage 2 of the level
-        disabled = False
-        if not disabled:
-            if render_level_subpart == 2:
-                # cheeks if the 2 stage is rendered
-                if sub_part_rendered == 1:
-                    # the second stage is not rendered, so it will be rendered and the stage variable will be set
-                    # to 2
-                    clear_sounds()
-                    actual_level = 1
-                    sub_part_rendered = 2
-                    falling_speed = 0
-                    enemy.clear()
-                    bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
-                    rendering = "level_1"
-                    chance_of_spawning_power_up = 150
-                    number_to_spawn_power_up = 150
-                    enemy_class(x_position=width + 70, yaxis=-50, direction="plane2", randomise_x_When_off_screen=True,
-                                speed=5, can_summon_minions=True)
-                    enemy_class(x_position=70, yaxis=-50, direction="plane1", randomise_x_When_off_screen=True, speed=5,
-                                can_summon_minions=True)
-                    invulnerable = True
-                    jumping = False
-            if 3 == render_level_subpart and sub_part_rendered == 2:
-                # the second stage is not rendered so it will be rendered and the stage variable will be set to 2
-                actual_level = 1
-                clear_sounds()
-                falling_speed = 0
-                enemy.clear()
-                sub_part_rendered = 3
-                bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
-                rendering = "level_1"
-                chance_of_spawning_power_up = 150
-                number_to_spawn_power_up = 150
-                player_lives += 1
-                enemy_class(x_position=70, yaxis=-50, direction="helicopter", randomise_x_When_off_screen=True,
-                            speed=5,
-                            can_summon_minions=True)
-                invulnerable = True
-                print("stage 2")
-                sub_part_rendered = 3
-                jumping = False
-            if 4 == render_level_subpart and sub_part_rendered == 3:
-                # the third stage is not rendered so it will be rendered and the stage variable will be set to 3
-                actual_level = 1
-                player_lives += 1
-                clear_sounds()
-                falling_speed = 0
-                enemy.clear()
-                sub_part_rendered = 4
-                bg = pygame.transform.scale(pygame.image.load("assets/image/level1background.png"), (width, height))
-                rendering = "level_1"
-                chance_of_spawning_power_up = 150
-                number_to_spawn_power_up = 150
-                enemy_class(x_position=70, yaxis=-50, direction="scope", randomise_x_When_off_screen=True,
-                            speed=5,
-                            can_summon_minions=True)
-                invulnerable = True
-                print("stage 3")
-                sub_part_rendered = 4
-                jumping = False
-        screen.blit(bg, (0, 0))
 
 def render_main_menu():
     global main_menu
@@ -131,72 +38,79 @@ def render_main_menu():
 
 
 def physics():
-    print(hrodebert_engine.variables.variables.meter_counter)
+    print(var.meter_counter)
     can_move = True
-    if not hrodebert_engine.variables.variables.game_over:
+    if not var.game_over:
+        for event in var.events:
+            event.cheek_for_event()
         # gravity system
 
         # cheeks if the player is jumping or not and if it is the script cheeks if it has a power up and
         # it makes the gravity different in base of the player attributes
-        if not hrodebert_engine.variables.variables.jumping:
+        if not var.jumping:
 
-            if hrodebert_engine.variables.variables.jet_pack_using:
-                hrodebert_engine.variables.variables.falling_speed = 0
+            if var.jet_pack_using:
+                var.falling_speed = 0
             # if the player is off-screen
-            if hrodebert_engine.variables.variables.player_y_pos >= hrodebert_engine.variables.variables.height - hrodebert_engine.variables.variables.player_rect_size:
+            if var.player_y_pos >= var.height - var.player_rect_size:
                 # disables the fall and makes the player stay on screen
-                hrodebert_engine.variables.variables.falling_speed += 0.5
-                hrodebert_engine.variables.variables.player_y_pos = hrodebert_engine.variables.variables.height - hrodebert_engine.variables.variables.player_rect_size
+                var.falling_speed += 0.5
+                var.player_y_pos = var.height - var.player_rect_size
             else:
                 # if the player is not off-screen make the player fall
                 can_move = False
-                for walls in wall_list:
-                    player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos + int(hrodebert_engine.variables.variables.falling_speed) + 1,
-                                                            hrodebert_engine.variables.variables.player_rect_size,
-                                                            hrodebert_engine.variables.variables.player_rect_size)
-                    result = walls.can_player_move(player_rect)
-                    walls.physics()
-                    if result:
-                        can_move = False
+                if len(var.wall_list) > 0:
+                    for walls in wall_list:
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos + int(var.falling_speed) + 1,
+                                                                var.player_rect_size,
+                                                                var.player_rect_size)
+                        result = walls.can_player_move(player_rect)
+                        walls.physics()
+                        if result:
+                            can_move = False
+                        else:
+                            if not can_move:
+                                can_move = True
+                    if can_move:
+                        var.falling_speed += 0.5
+                        var.player_y_pos += int(var.falling_speed)
                     else:
-                        if not can_move:
-                            can_move = True
-                if can_move:
-                    hrodebert_engine.variables.variables.falling_speed += 0.5
-                    hrodebert_engine.variables.variables.player_y_pos += int(hrodebert_engine.variables.variables.falling_speed)
+                        var.falling_speed = 0
                 else:
-                    hrodebert_engine.variables.variables.falling_speed = 0
+                    var.falling_speed += 0.5
+                    var.player_y_pos += int(var.falling_speed)
+                    var.player_y_pos += int(var.falling_speed)
 
             # meter counter cant be smaller then 0
-            if hrodebert_engine.variables.variables.meter_counter >= 0 and hrodebert_engine.variables.variables.meter_counter != 0:
+            if var.meter_counter >= 0 and var.meter_counter != 0:
                 # meter falling manager if the falling speed /4 is not bigger than 200(max value of falling speed)
                 # then It's ok for setting the meter_counter: meter_counter - falling_speed / 4
-                if hrodebert_engine.variables.variables.falling_speed / 4 < 200:
-                    hrodebert_engine.variables.variables.meter_counter -= hrodebert_engine.variables.variables.falling_speed / 4
+                if var.falling_speed / 4 < 200:
+                    var.meter_counter -= var.falling_speed / 4
                 else:
                     # if falling speed /4 is bigger than 200 then meter_counter is going to be at meter_counter - 200
-                    hrodebert_engine.variables.variables.meter_counter -= 200
+                    var.meter_counter -= 200
             else:
-                hrodebert_engine.variables.variables.meter_counter = 0
+                var.meter_counter = 0
         else:
-            if hrodebert_engine.variables.variables.player_y_pos > 0:
+            if var.player_y_pos > 0:
                 # if the player is jumping then the meter counter will be added 20
                 # for every frame sets the meter counter to + 20
-                hrodebert_engine.variables.variables.meter_counter += 20
+                var.meter_counter += 20
                 # by setting falling speed to 0 we make so the acceleration counter starts from 0
-                hrodebert_engine.variables.variables.falling_speed = 0
+                var.falling_speed = 0
                 # the "friction" is a counter that makes the acceleration less strong at the moment the hrodebert_engine gets at
                 # that frame making a jump effect with a speed loss whit time
-                if hrodebert_engine.variables.variables.friction <= hrodebert_engine.variables.variables.Now_time - 10:
+                if var.friction <= var.Now_time - 10:
                     # slows down the jump speed
-                    hrodebert_engine.variables.variables.jump_force -= 1
+                    var.jump_force -= 1
                     # makes the player y be higher
                     can_move = False
                     for walls in wall_list:
                         walls.physics()
-                        player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos - hrodebert_engine.variables.variables.jump_force * 3,
-                                                                hrodebert_engine.variables.variables.player_rect_size,
-                                                                hrodebert_engine.variables.variables.player_rect_size)
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos - var.jump_force * 3,
+                                                                var.player_rect_size,
+                                                                var.player_rect_size)
                         result = walls.can_player_move(player_rect)
                         if result:
                             can_move = False
@@ -204,18 +118,18 @@ def physics():
                             if not can_move:
                                 can_move = True
                     if can_move:
-                        hrodebert_engine.variables.variables.player_y_pos -= hrodebert_engine.variables.variables.jump_force * 3
+                        var.player_y_pos -= var.jump_force * 3
                     else:
-                        hrodebert_engine.variables.variables.player_y_pos -= 1
+                        var.player_y_pos -= 1
                     # resets the counter for the jump speed diminution
-                    hrodebert_engine.variables.variables.friction = hrodebert_engine.variables.variables.Now_time
+                    var.friction = var.Now_time
                 else:
                     # makes the player go higher
-                    hrodebert_engine.variables.variables.can_move = False
+                    var.can_move = False
                     for walls in wall_list:
-                        player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos - hrodebert_engine.variables.variables.jump_force * 3,
-                                                                hrodebert_engine.variables.variables.player_rect_size,
-                                                                hrodebert_engine.variables.variables.player_rect_size)
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos - var.jump_force * 3,
+                                                                var.player_rect_size,
+                                                                var.player_rect_size)
                         result = walls.can_player_move(player_rect)
                         if result:
                             can_move = False
@@ -223,23 +137,23 @@ def physics():
                             if not can_move:
                                 can_move = True
                     if can_move:
-                        hrodebert_engine.variables.variables.player_y_pos -= hrodebert_engine.variables.variables.jump_force * 3
+                        var.player_y_pos -= var.jump_force * 3
                     else:
-                        hrodebert_engine.variables.variables.player_y_pos -= 1
+                        var.player_y_pos -= 1
                     # brakes the loop if the player has no more jumping force
-                    if hrodebert_engine.variables.variables.jump_force == 0:
-                        hrodebert_engine.variables.variables.jumping = False
+                    if var.jump_force == 0:
+                        var.jumping = False
             else:
-                hrodebert_engine.variables.variables.player_y_pos = 0 +  1
-            if hrodebert_engine.variables.variables.jet_pack_using:
-                if hrodebert_engine.variables.variables.jet_pack_starter_time < hrodebert_engine.variables.variables.Now_time - 360:
-                    hrodebert_engine.variables.variables.jet_pack_using = False
+                var.player_y_pos = 0 +  1
+            if var.jet_pack_using:
+                if var.jet_pack_starter_time < var.Now_time - 360:
+                    var.jet_pack_using = False
 
 
         # collision handler:
 
         # first we will put for in loop, so we can do an action like calling a function for every class
-        for power_up in hrodebert_engine.variables.variables.booster_list:
+        for power_up in var.booster_list:
             # we call the designated function for every object of the class power up
             power_up.booster_detect_collisions()
 
@@ -250,15 +164,15 @@ def physics():
         for enemy_npc in enemy:
             enemy_rect = pygame.Rect(enemy_npc.x_position, enemy_npc.yaxis, enemy_npc.size_width,
                                      enemy_npc.size_height)
-            player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos, hrodebert_engine.variables.variables.player_y_pos - hrodebert_engine.variables.variables.jump_force * 3, hrodebert_engine.variables.variables.player_rect_size, hrodebert_engine.variables.variables.player_rect_size)
+            player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos - var.jump_force * 3, var.player_rect_size, var.player_rect_size)
             if player_rect.colliderect(enemy_rect):
                 # after knowing that the player is colliding or now then we are able to call the enemy action
                 # which could be to lose a life or to spawn a mile
-                if not hrodebert_engine.variables.variables.invulnerable:
+                if not var.invulnerable:
                     if enemy_npc.type != "scope":
-                        hrodebert_engine.variables.variables.player_lives -= 1
-                        hrodebert_engine.variables.variables.starter_time = Now_time
-                        hrodebert_engine.variables.variables.invulnerable = True
+                        var.player_lives -= 1
+                        var.starter_time = Now_time
+                        var.invulnerable = True
                     else:
                         enemy_npc.locked_time += 1
                         enemy_npc.locking = True
@@ -273,38 +187,26 @@ player_sprite()
 # updates the skin
 
 def screen_updater():
-    if not hrodebert_engine.variables.variables.game_over:
+    if not var.game_over:
         # if the player is higher than 10000 meters
-        if hrodebert_engine.variables.variables.meter_counter > 10000:
-            # here we cheek if the player has the requirements to enter stage 2
-            if hrodebert_engine.variables.variables.render_level_subpart <= 2 and hrodebert_engine.variables.variables.render_level_subpart == 1:
-                # we enter stage 2
-                hrodebert_engine.variables.variables.render_level_subpart = 2
-        if hrodebert_engine.variables.variables.meter_counter > 20000:
-            if hrodebert_engine.variables.variables.render_level_subpart <= 3 and hrodebert_engine.variables.variables.render_level_subpart == 2:
-                hrodebert_engine.variables.variables.render_level_subpart = 3
-        if hrodebert_engine.variables.variables.meter_counter > 30000:
-            if hrodebert_engine.variables.variables.render_level_subpart <= 4 and hrodebert_engine.variables.variables.render_level_subpart == 3:
-                hrodebert_engine.variables.variables.render_level_subpart = 4
 
         # cheeks if the spawning chance for power up is enabled
-        if hrodebert_engine.variables.variables.chance_of_spawning_power_up != 0:
+        if var.chance_of_spawning_power_up != 0:
             # makes a clock that cheeks it every 1/3 of second
-            if hrodebert_engine.variables.variables.Now_time - 20 > hrodebert_engine.variables.variables.started_guess:
+            if var.Now_time - 20 > var.started_guess:
                 # makes a random number that if it's the same as the winner number then a power up spawns
-                casual_number = random.randint(0, hrodebert_engine.variables.variables.chance_of_spawning_power_up)
-                hrodebert_engine.variables.variables.started_guess = hrodebert_engine.variables.variables.Now_time
-                if hrodebert_engine.variables.variables.number_to_spawn_power_up == casual_number:
-                    if len(hrodebert_engine.variables.variables.booster_list) == 0:
+                casual_number = random.randint(0, var.chance_of_spawning_power_up)
+                var.started_guess = var.Now_time
+                if var.number_to_spawn_power_up == casual_number:
+                    if len(var.booster_list) == 0:
                         booster(booster_type="random", x_position=int(random.randint(70, width - 70)),
                                 y_position=int(random.randint(70, height - 70)))
 
         # renders every object calling they're rendering option or rendering them manually + it handles the gravity
         # system render the hrodebert_engine here V
         screen.fill("white")
-
+        screen.blit(var.bg, (0, 0))
         # renders the requested level
-        hrodebert_engine.engine.functions.render_level(data.get_variable("LEVEL_REACHED"))
         if jet_pack_using:
             screen.blit(jet_pack, (player_x_pos - player_rect_size / 4, player_y_pos - 10))
         # pygame.draw.rect(screen, player_rect_color,
@@ -313,7 +215,7 @@ def screen_updater():
         for player in player_list:
             player.walk()
         screen.blit(heart, ((width - 60) - 20, 20))
-        draw_text(str(int(hrodebert_engine.variables.variables.player_lives)), font, black, (width - 120) - 20, 30)
+        draw_text(str(int(var.player_lives)), font, black, (width - 120) - 20, 30)
 
         for boosters in booster_list:
             boosters.render_booster()
@@ -321,31 +223,31 @@ def screen_updater():
             enemy_npc.render()
         for walls in wall_list:
             walls.render_wall()
-        draw_text(str(int(hrodebert_engine.variables.variables.meter_counter)), font, black, 20, 20)
+        draw_text(str(int(var.meter_counter)), font, black, 20, 20)
 
         # don't put anything under this V
         pygame.display.flip()
 
         # getting the frame we are in
-        if hrodebert_engine.variables.variables.Now_time is None:
-            hrodebert_engine.variables.variables.Now_time = 1
-            hrodebert_engine.variables.variables.starter_time = hrodebert_engine.variables.variables.Now_time
+        if var.Now_time is None:
+            var.Now_time = 1
+            var.starter_time = var.Now_time
         else:
-            hrodebert_engine.variables.variables.Now_time += 1
-        if hrodebert_engine.variables.variables.invulnerable:
-            if (hrodebert_engine.variables.variables.Now_time - 180) >= hrodebert_engine.variables.variables.starter_time:
-                hrodebert_engine.variables.variables.invulnerable = False
+            var.Now_time += 1
+        if var.invulnerable:
+            if (var.Now_time - 180) >= var.starter_time:
+                var.invulnerable = False
 
         # top border
-        if hrodebert_engine.variables.variables.player_y_pos < 0:
-            hrodebert_engine.variables.variables.player_y_pos = 0
+        if var.player_y_pos < 0:
+            var.player_y_pos = 0
 
         # falling system
-        if hrodebert_engine.variables.variables.meter_counter == 0 or hrodebert_engine.variables.variables.meter_counter <= 0:
-            if not hrodebert_engine.variables.variables.invulnerable:
-                hrodebert_engine.variables.variables.player_lives -= 1
-        if hrodebert_engine.variables.variables.player_lives == 0:
-            hrodebert_engine.variables.variables.game_over = True
+        if var.meter_counter == 0 or var.meter_counter <= 0:
+            if not var.invulnerable:
+                var.player_lives -= 1
+        if var.player_lives == 0:
+            var.game_over = True
 
         # setting the max frame rate
         clock.tick(Max_fps)
@@ -353,10 +255,10 @@ def screen_updater():
         if not game_over_rendered:
             music.stop()
             screen.fill("black")
-            text, text_size = draw_text(str(int(hrodebert_engine.variables.variables.meter_counter)), font, black, (width / 2), (height / 2) - 230)
+            text, text_size = draw_text(str(int(var.meter_counter)), font, black, (width / 2), (height / 2) - 230)
             text_width = text_size[0]
             print(f"text widt ={text_width}")
-            draw_text(str(int(hrodebert_engine.variables.variables.meter_counter)), font, white, int(((width / 2) - text_width / 2)), (height / 2) - 230)
+            draw_text(str(int(var.meter_counter)), font, white, int(((width / 2) - text_width / 2)), (height / 2) - 230)
             text, text_size = draw_text(str("Game Over!"), font, black, (width / 2), (height / 2))
             text_width = text_size[0]
             draw_text(str("Game Over!"), font, red, (width / 2) - (text_width / 2), (height / 2))
@@ -375,91 +277,100 @@ def key_handler():
     if keys[pygame.K_SPACE]:
         # we cheek if exists the cool down, if it doesn't then we jump if it exists we cheek if it's smaller than the
         # frames - 3 seconds of frame
-        if hrodebert_engine.variables.variables.jump_cd is None or hrodebert_engine.variables.variables.jump_cd <= (hrodebert_engine.variables.variables.Now_time - 70):
+        if var.jump_cd is None or var.jump_cd <= (var.Now_time - 70):
             # sets a jump cd gives the player a jump force and sets the jumping var to true
             print("works")
-            hrodebert_engine.variables.variables.jump_cd = hrodebert_engine.variables.variables.Now_time
-            hrodebert_engine.variables.variables.jump_force = 4
-            hrodebert_engine.variables.variables.falling_speed = 0
-            hrodebert_engine.variables.variables.jumping = True
-            hrodebert_engine.variables.variables.friction = hrodebert_engine.variables.variables.Now_time
+            var.jump_cd = var.Now_time
+            var.jump_force = 5
+            var.falling_speed = 0
+            var.jumping = True
+            var.friction = var.Now_time
             jump = pygame.mixer.Sound("assets/sfx/jump.mp3")
             pygame.mixer.Sound.play(jump)
-            hrodebert_engine.variables.variables.player_y_pos -= 2
+            var.player_y_pos -= 2
 
     if keys[pygame.K_a]:
-        can_move = False
-        hrodebert_engine.variables.variables.direction = "right"
-        returns = []
-        for walls in wall_list:
-            player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos - hrodebert_engine.variables.variables.player_speed, hrodebert_engine.variables.variables.player_y_pos + 2, hrodebert_engine.variables.variables.player_rect_size,
-                                                    hrodebert_engine.variables.variables.player_rect_size)
-            result = walls.can_player_move(player_rect)
-            if result:
-                can_move = False
-                player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos - hrodebert_engine.variables.variables.player_speed - 20, hrodebert_engine.variables.variables.player_y_pos - 2,
-                                                        hrodebert_engine.variables.variables.player_rect_size,
-                                                        hrodebert_engine.variables.variables.player_rect_size)
-                result = walls.can_player_move(player_rect)
-                if not result:
-                    can_move = True
+        if 0 < var.player_x_pos - var.player_speed:
+            can_move = False
+            var.direction = "right"
+            returns = []
+            if len(var.wall_list) > 0:
+                for walls in wall_list:
+                    player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos + 2, var.player_rect_size,
+                                                            var.player_rect_size)
+                    result = walls.can_player_move(player_rect)
+                    if result:
+                        can_move = False
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed - 20, var.player_y_pos - 2,
+                                                                var.player_rect_size,
+                                                                var.player_rect_size)
+                        result = walls.can_player_move(player_rect)
+                        if not result:
+                            can_move = True
+                    else:
+                        if not can_move:
+                            can_move = True
+                if can_move:
+                    if var.player_x_pos - 1 >= 0:
+                        var.player_x_pos -= var.player_speed
+                        print("moving")
             else:
-                if not can_move:
-                    can_move = True
-        if can_move:
-            if hrodebert_engine.variables.variables.player_x_pos - 1 >= 0:
-                hrodebert_engine.variables.variables.player_x_pos -= hrodebert_engine.variables.variables.player_speed
-                print("moving")
+                var.player_x_pos -= var.player_speed
     if keys[pygame.K_d]:
-        can_move = False
-        hrodebert_engine.variables.variables.direction = "left"
-        for walls in wall_list:
-            player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos + hrodebert_engine.variables.variables.player_speed - 20, hrodebert_engine.variables.variables.player_y_pos + 2,
-                                                    hrodebert_engine.variables.variables.player_rect_size,
-                                                    hrodebert_engine.variables.variables.player_rect_size)
-            result = walls.can_player_move(player_rect)
-            if result:
-                can_move = False
-                player_rect = player_rect = pygame.Rect(hrodebert_engine.variables.variables.player_x_pos - hrodebert_engine.variables.variables.player_speed, hrodebert_engine.variables.variables.player_y_pos - 2, hrodebert_engine.variables.variables.player_rect_size,
-                                                        hrodebert_engine.variables.variables.player_rect_size)
-                result = walls.can_player_move(player_rect)
-                if not result:
-                    can_move = True
+        if var.width > (var.player_x_pos + var.player_speed) + var.player_rect_size:
+            can_move = False
+            var.direction = "left"
+            if len(var.wall_list) > 0:
+                for walls in wall_list:
+                    player_rect = player_rect = pygame.Rect(var.player_x_pos + var.player_speed - 20, var.player_y_pos + 2,
+                                                            var.player_rect_size,
+                                                            var.player_rect_size)
+                    result = walls.can_player_move(player_rect)
+                    if result:
+                        can_move = False
+                        player_rect = player_rect = pygame.Rect(var.player_x_pos - var.player_speed, var.player_y_pos - 2, var.player_rect_size,
+                                                                var.player_rect_size)
+                        result = walls.can_player_move(player_rect)
+                        if not result:
+                            can_move = True
+                    else:
+                        if not can_move:
+                            can_move = True
+                if var.player_x_pos + var.player_rect_size < width:
+                    if can_move:
+                        var.player_x_pos += var.player_speed
             else:
-                if not can_move:
-                    can_move = True
-        if hrodebert_engine.variables.variables.player_x_pos + hrodebert_engine.variables.variables.player_rect_size < width:
-            if can_move:
-                hrodebert_engine.variables.variables.player_x_pos += hrodebert_engine.variables.variables.player_speed
+                var.player_x_pos += var.player_speed
+
 
     # makes the go height / go down key usable only if the player has a jetpack
     if jet_pack_using:
         if keys[pygame.K_w]:
             can_move = False
             for walls in wall_list:
-                player_rect = player_rect = pygame.Rect(player_x_pos, player_y_pos - player_speed, player_rect_size,
-                                                        player_rect_size)
+                player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos - var.player_speed, var.player_rect_size,
+                                                        var.player_rect_size)
                 result = walls.can_player_move(player_rect)
                 if result:
                     can_move = False
                 else:
                     if not can_move:
                         can_move = True
-            if player_y_pos - player_rect_size > 0:
+            if var.player_y_pos - player_rect_size > 0:
                 if can_move:
-                    player_y_pos -= player_speed
+                    var.player_y_pos -= player_speed
 
         if keys[pygame.K_s]:
             can_move = False
             for walls in wall_list:
-                player_rect = player_rect = pygame.Rect(player_x_pos, player_y_pos + player_speed, player_rect_size,
-                                                        player_rect_size)
+                player_rect = player_rect = pygame.Rect(var.player_x_pos, var.player_y_pos + var.player_speed, var.player_rect_size,
+                                                        var.player_rect_size)
                 result = walls.can_player_move(player_rect)
                 if result:
                     can_move = False
                 else:
                     if not can_move:
                         can_move = True
-            if player_y_pos + player_rect_size < height:
+            if var.player_y_pos + var.player_rect_size < height:
                 if can_move:
-                    player_y_pos += player_speed
+                    var.player_y_pos += var.player_speed

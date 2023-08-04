@@ -106,3 +106,5 @@ idle_sprite_11 = pygame.transform.scale(pygame.image.load("assets/image/idle/til
 idle_spite_list = [idle_sprite_1,idle_sprite_2,idle_sprite_3,idle_sprite_4,idle_sprite_5,idle_sprite_6,idle_sprite_7,idle_sprite_8,idle_sprite_9,idle_sprite_10,idle_sprite_11]
 
 jumping_sprite = pygame.transform.scale(pygame.image.load("assets/image/jump.png"), (60,60))
+events = []
+reached_meter = 0
